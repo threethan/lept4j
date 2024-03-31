@@ -1,3 +1,6 @@
+> [!CAUTION]
+> This fork, alongside the use of moditect for depedences, makes Lept4J compatible with jPackage. However, it strips out a lot of functionality, and breaks things!
+
 ## Lept4J
 
 A JNA Java wrapper for [Leptonica Image Processing Library](http://www.leptonica.com/).
