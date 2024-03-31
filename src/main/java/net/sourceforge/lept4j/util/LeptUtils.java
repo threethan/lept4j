@@ -15,36 +15,20 @@
  */
 package net.sourceforge.lept4j.util;
 
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+import com.sun.jna.Structure;
+import com.sun.jna.ptr.PointerByReference;
+import net.sourceforge.lept4j.*;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.Iterator;
-import java.util.Locale;
-import javax.imageio.IIOImage;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.stream.ImageOutputStream;
 
-import com.github.jaiimageio.plugins.tiff.TIFFImageWriteParam;
-import com.sun.jna.ptr.PointerByReference;
-
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Structure;
-import net.sourceforge.lept4j.*;
-import static net.sourceforge.lept4j.ILeptonica.FALSE;
-import static net.sourceforge.lept4j.ILeptonica.IFF_TIFF;
-import static net.sourceforge.lept4j.ILeptonica.L_COPY;
+import static net.sourceforge.lept4j.ILeptonica.*;
 
 //import org.opencv.core.Mat;
 //import org.opencv.core.MatOfByte;
@@ -54,9 +38,6 @@ import static net.sourceforge.lept4j.ILeptonica.L_COPY;
  *
  */
 public class LeptUtils {
-
-    final static String JAI_IMAGE_WRITER_MESSAGE = "Need to install JAI Image I/O package.\nhttps://github.com/jai-imageio/jai-imageio-core";
-    final static String TIFF_FORMAT = "tiff";
     final static float deg2rad = (float) (3.14159 / 180.);
 
     /**
@@ -80,18 +61,6 @@ public class LeptUtils {
         return bi;
     }
 
-    /**
-     * Converts <code>BufferedImage</code> to Leptonica <code>Pix</code> .
-     *
-     * @param image source image
-     * @return Pix output pix
-     * @throws IOException
-     */
-    public static Pix convertImageToPix(BufferedImage image) throws IOException {
-        ByteBuffer buff = getImageByteBuffer(image);
-        Pix pix = Leptonica1.pixReadMem(buff, new NativeSize(buff.capacity()));
-        return pix;
-    }
 
     /**
      * Removes horizontal lines from a grayscale image. The algorithm is based
@@ -396,48 +365,6 @@ public class LeptUtils {
         }
     }
 
-    /**
-     * Gets image data of an <code>RenderedImage</code> object.
-     *
-     * @param image an <code>RenderedImage</code> object
-     * @return a byte buffer of image data
-     * @throws IOException
-     */
-    static ByteBuffer getImageByteBuffer(RenderedImage image) throws IOException {
-        //Set up the writeParam
-        TIFFImageWriteParam tiffWriteParam = new TIFFImageWriteParam(Locale.US);
-        tiffWriteParam.setCompressionMode(ImageWriteParam.MODE_DISABLED);
-
-        //Get tif writer and set output to file
-        Iterator<ImageWriter> writers = ImageIO.getImageWritersByFormatName(TIFF_FORMAT);
-
-        if (!writers.hasNext()) {
-            throw new RuntimeException(JAI_IMAGE_WRITER_MESSAGE);
-        }
-
-        ImageWriter writer = writers.next();
-
-        //Get the stream metadata
-        IIOMetadata streamMetadata = writer.getDefaultStreamMetadata(tiffWriteParam);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        byte[] b;
-        try (ImageOutputStream ios = ImageIO.createImageOutputStream(outputStream)) {
-            writer.setOutput(ios);
-            writer.write(streamMetadata, new IIOImage(image, null, null), tiffWriteParam);
-            //writer.write(image);
-            writer.dispose();
-            ios.seek(0);
-            b = new byte[(int) ios.length()];
-            ios.read(b);
-        }
-
-        ByteBuffer buf = ByteBuffer.allocateDirect(b.length);
-        buf.order(ByteOrder.nativeOrder());
-        buf.put(b);
-        ((Buffer) buf).flip();
-        return buf;
-    }
 
 //    /**
 //     * Converts OpenCV Mat to Leptonica Pix.

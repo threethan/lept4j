@@ -17,18 +17,17 @@ package net.sourceforge.lept4j.util;
 
 import com.sun.jna.Structure;
 import com.sun.jna.ptr.PointerByReference;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import javax.imageio.ImageIO;
-
-import net.sourceforge.lept4j.*;
-
+import net.sourceforge.lept4j.ILeptonica;
+import net.sourceforge.lept4j.Leptonica1;
+import net.sourceforge.lept4j.Pix;
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LeptUtilsTest {
 
@@ -71,39 +70,6 @@ public class LeptUtilsTest {
         PointerByReference pRef = new PointerByReference();
         pRef.setValue(pix.getPointer());
         Leptonica1.pixDestroy(pRef);
-    }
-
-    /**
-     * Test of convertImageToPix method, of class LeptUtils.
-     *
-     * @throws java.lang.Exception
-     */
-    @Test
-    public void testConvertImageToPix() throws Exception {
-        System.out.println("convertImageToPix");
-        File input = new File(testResourcesPath, "eurotext.png");
-        BufferedImage image = ImageIO.read(new FileInputStream(input));
-        Pix result = LeptUtils.convertImageToPix(image);
-        assertEquals(image.getWidth(), result.w);
-        assertEquals(image.getHeight(), result.h);
-        assertEquals(image.getColorModel().getPixelSize(), result.d);
-        System.out.println(String.format("Image properties: width=%d, height=%d, depth=%d", result.w, result.h, result.d));
-        PointerByReference pRef = new PointerByReference();
-        pRef.setValue(result.getPointer());
-        Leptonica1.pixDestroy(pRef);
-    }
-
-    /**
-     * Test of getImageByteBuffer method, of class LeptUtils.
-     */
-    @Disabled("Disabled until finding a way")
-    @Test
-    public void testGetImageByteBuffer() throws Exception {
-        System.out.println("getImageByteBuffer");
-        RenderedImage image = null;
-        ByteBuffer expResult = null;
-        ByteBuffer result = LeptUtils.getImageByteBuffer(image);
-        assertEquals(expResult, result);
     }
 
     /**
